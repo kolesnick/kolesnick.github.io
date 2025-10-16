@@ -4,51 +4,74 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geo IP Lookup</title>
+    <link rel="icon" href="https://www.cosmos.so/favicon.ico" />
     <style>
+      :root {
+        color-scheme: dark;
+      }
+
       body {
-        font-family: Arial, sans-serif;
         margin: 0;
-        padding: 2rem;
-        background-color: #f5f5f5;
-        color: #333;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #000;
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
       }
 
-      main {
-        max-width: 600px;
-        margin: 0 auto;
-        background: #fff;
-        border-radius: 8px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      #content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        width: min(90vw, 22rem);
+        text-align: center;
       }
 
-      h1 {
-        margin-top: 0;
+      #flag {
+        font-size: clamp(5rem, 45vw, 10rem);
+        line-height: 1;
       }
 
-      pre {
-        white-space: pre-wrap;
+      #ip {
+        font-size: clamp(1.75rem, 10vw, 2.75rem);
+        font-weight: 600;
+        color: #fff;
+        letter-spacing: 0.05em;
         word-break: break-word;
-        background-color: #f0f0f0;
-        padding: 1rem;
-        border-radius: 4px;
-        overflow-x: auto;
       }
     </style>
   </head>
   <body>
-    <main>
-      <h1>Geo IP Lookup</h1>
-      <p>Loading country information...</p>
-      <pre id="response"></pre>
-    </main>
+    <div id="content">
+      <span id="flag">🥷</span>
+      <span id="ip"></span>
+    </div>
     <script>
-      const responseContainer = document.getElementById("response");
-      const statusText = document.querySelector("main > p");
+      const flagElement = document.getElementById("flag");
+      const ipElement = document.getElementById("ip");
+
+      function countryCodeToFlag(code) {
+        if (!code || code.length !== 2) {
+          return "🥷";
+        }
+
+        const base = 0x1f1e6;
+        const upper = code.toUpperCase();
+        const first = upper.codePointAt(0);
+        const second = upper.codePointAt(1);
+
+        if (!first || !second) {
+          return "🥷";
+        }
+
+        return String.fromCodePoint(base + first - 65, base + second - 65);
+      }
 
       async function fetchCountryCode() {
         try {
-          const res = await fetch("https://api.cosmos.so/graphql", {
+          const response = await fetch("https://api.cosmos.so/graphql", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -58,16 +81,19 @@
             }),
           });
 
-          if (!res.ok) {
-            throw new Error(`Network response was not ok: ${res.status}`);
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
           }
 
-          const data = await res.json();
-          responseContainer.textContent = JSON.stringify(data, null, 2);
-          statusText.textContent = "Loaded country information:";
+          const payload = await response.json();
+          const countryInfo = payload?.data?.countryCode;
+
+          const flag = countryCodeToFlag(countryInfo?.countryCode);
+          flagElement.textContent = flag;
+          ipElement.textContent = countryInfo?.ipAddress ?? "";
         } catch (error) {
-          statusText.textContent = "Failed to load country information.";
-          responseContainer.textContent = error.message;
+          flagElement.textContent = "🥷";
+          ipElement.textContent = "";
         }
       }
 
