@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geo IP Lookup</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 2rem;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+
+      main {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background-color: #f0f0f0;
+        padding: 1rem;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Geo IP Lookup</h1>
+      <p>Loading country information...</p>
+      <pre id="response"></pre>
+    </main>
+    <script>
+      const responseContainer = document.getElementById("response");
+      const statusText = document.querySelector("main > p");
+
+      async function fetchCountryCode() {
+        try {
+          const res = await fetch("https://api.cosmos.so/graphql", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              query: `query GetCountryCode {\n  countryCode {\n    countryCode\n    ipAddress\n  }\n}`,
+            }),
+          });
+
+          if (!res.ok) {
+            throw new Error(`Network response was not ok: ${res.status}`);
+          }
+
+          const data = await res.json();
+          responseContainer.textContent = JSON.stringify(data, null, 2);
+          statusText.textContent = "Loaded country information:";
+        } catch (error) {
+          statusText.textContent = "Failed to load country information.";
+          responseContainer.textContent = error.message;
+        }
+      }
+
+      fetchCountryCode();
+    </script>
+  </body>
+</html>
