@@ -30,12 +30,12 @@
       }
 
       #flag {
-        font-size: clamp(5rem, 45vw, 10rem);
+        font-size: clamp(10rem, 90vw, 20rem);
         line-height: 1;
       }
 
       #ip {
-        font-size: clamp(1.75rem, 10vw, 2.75rem);
+        font-size: clamp(0.875rem, 5vw, 1.375rem);
         font-weight: 600;
         color: #fff;
         letter-spacing: 0.05em;
@@ -46,11 +46,12 @@
   <body>
     <div id="content">
       <span id="flag">🥷</span>
-      <span id="ip"></span>
+      <span id="ip">Analyzing IP...</span>
     </div>
     <script>
       const flagElement = document.getElementById("flag");
       const ipElement = document.getElementById("ip");
+      const loadingText = "Analyzing IP...";
 
       function countryCodeToFlag(code) {
         if (!code || code.length !== 2) {
@@ -90,10 +91,10 @@
 
           const flag = countryCodeToFlag(countryInfo?.countryCode);
           flagElement.textContent = flag;
-          ipElement.textContent = countryInfo?.ipAddress ?? "";
+          ipElement.textContent = countryInfo?.ipAddress ?? loadingText;
         } catch (error) {
           flagElement.textContent = "🥷";
-          ipElement.textContent = "";
+          ipElement.textContent = loadingText;
         }
       }
 
